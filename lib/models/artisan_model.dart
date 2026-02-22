@@ -11,8 +11,8 @@ class ArtisanModel {
   final String statut;
   final bool isVerified;
   final String badge;
-  final double notemoyenne;
-  final int totalAvis;
+  final double notemoyenne; // Ton champ exact
+  final int totalAvis; // Ton champ exact
   final int totalMissions;
   final bool isPremium;
   final String telephone;
@@ -55,6 +55,4 @@ class ArtisanModel {
       telephone: d['telephone'] ?? '',
     );
   }
-
-  bool get estDisponible => statut == 'disponible' && isVerified;
 }

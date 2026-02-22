@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/artisan_model.dart';
 import '../core/constants/app_colors.dart';
+import '../models/artisan_model.dart';
 import '../screens/artisan/artisan_profile_screen.dart';
 
 class ArtisanCard extends StatelessWidget {
   final ArtisanModel artisan;
-  const ArtisanCard({required this.artisan, super.key});
 
-  Future<void> _appeler() async {
-    final uri = Uri.parse('tel:+226${artisan.telephone}');
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+  const ArtisanCard({super.key, required this.artisan});
+
+  Future<void> _faireAppel() async {
+    final Uri launchUri = Uri(scheme: 'tel', path: artisan.telephone);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
   }
 
-  Future<void> _whatsapp() async {
-    final message = Uri.encodeComponent(
-        'Bonjour ${artisan.displayName}, j\'ai trouvé votre profil sur Tondo. Êtes-vous disponible ?');
-    final uri =
-        Uri.parse('https://wa.me/226${artisan.telephone}?text=$message');
-    if (await canLaunchUrl(uri))
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+  Future<void> _lancerWhatsApp() async {
+    String numero = artisan.telephone.replaceAll(RegExp(r'\D'), '');
+    if (!numero.startsWith('226')) numero = '226$numero';
+    final String message = Uri.encodeComponent(
+        'Bonjour ${artisan.displayName}, je vous contacte via Tondo. Êtes-vous disponible ?');
+    final Uri url = Uri.parse('https://wa.me/$numero?text=$message');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
@@ -32,38 +37,40 @@ class ArtisanCard extends StatelessWidget {
         ),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 2),
             )
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
+                // Avatar emoji
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
-                    color: AppColors.redLight,
+                    color: AppColors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(
                     child: Text(artisan.metierEmoji,
-                        style: const TextStyle(fontSize: 24)),
+                        style: const TextStyle(fontSize: 28)),
                   ),
                 ),
                 const SizedBox(width: 12),
+
+                // Infos
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,8 +85,8 @@ class ArtisanCard extends StatelessWidget {
                       Text(
                           '${artisan.metierLabel} · ${artisan.quartierPrincipal}',
                           style: const TextStyle(
-                            fontSize: 12,
                             color: AppColors.mid,
+                            fontSize: 12,
                           )),
                       const SizedBox(height: 6),
                       if (artisan.isVerified)
@@ -100,6 +107,8 @@ class ArtisanCard extends StatelessWidget {
                     ],
                   ),
                 ),
+
+                // Note
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -122,12 +131,15 @@ class ArtisanCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+
+            const SizedBox(height: 14),
+
+            // Boutons
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: _appeler,
+                    onPressed: _faireAppel,
                     icon: const Icon(Icons.phone, size: 16),
                     label: const Text('Appeler'),
                     style: OutlinedButton.styleFrom(
@@ -146,12 +158,12 @@ class ArtisanCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: _whatsapp,
-                    icon: const Icon(Icons.message,
-                        size: 16, color: Colors.white),
+                    onPressed: _lancerWhatsApp,
+                    icon: const Icon(Icons.chat, size: 16, color: Colors.white),
                     label: const Text('WhatsApp'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF25D366),
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),

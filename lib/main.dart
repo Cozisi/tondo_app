@@ -93,88 +93,99 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class ProfilScreen extends StatelessWidget {
+class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final estConnecte = user != null && !user.isAnonymous;
+  State<ProfilScreen> createState() => _ProfilScreenState();
+}
 
+class _ProfilScreenState extends State<ProfilScreen> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(estConnecte ? '👤' : '🔒',
-                  style: const TextStyle(fontSize: 60)),
-              const SizedBox(height: 16),
-              Text(
-                estConnecte ? 'Connecté' : 'Mon Profil',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                estConnecte
-                    ? user.phoneNumber ?? ''
-                    : 'Connectez-vous pour accéder à votre profil',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.mid),
-              ),
-              const SizedBox(height: 32),
-              if (!estConnecte)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            final user = snapshot.data;
+            final estConnecte = user != null && !user.isAnonymous;
+
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(estConnecte ? '👤' : '🔒',
+                      style: const TextStyle(fontSize: 60)),
+                  const SizedBox(height: 16),
+                  Text(
+                    estConnecte ? 'Connecté' : 'Mon Profil',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.black,
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.red,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(99)),
-                    ),
-                    child: const Text('Se connecter',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        )),
                   ),
-                ),
-              if (estConnecte)
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      await FirebaseAuth.instance.signInAnonymously();
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.red,
-                      side: const BorderSide(color: AppColors.red),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(99)),
-                    ),
-                    child: const Text('Se déconnecter',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        )),
+                  const SizedBox(height: 8),
+                  Text(
+                    estConnecte
+                        ? user.phoneNumber ?? ''
+                        : 'Connectez-vous pour accéder à votre profil',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.mid),
                   ),
-                ),
-            ],
-          ),
+                  const SizedBox(height: 32),
+                  if (!estConnecte)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const LoginScreen()),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(99)),
+                        ),
+                        child: const Text('Se connecter',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            )),
+                      ),
+                    ),
+                  if (estConnecte)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signOut();
+                          await FirebaseAuth.instance.signInAnonymously();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.red,
+                          side: const BorderSide(color: AppColors.red),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(99)),
+                        ),
+                        child: const Text('Se déconnecter',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            )),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
