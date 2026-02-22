@@ -18,6 +18,7 @@ class ArtisanService {
     return _db
         .collection('artisans')
         .where('metier', isEqualTo: metier)
+        .where('statut', isEqualTo: 'disponible')
         .snapshots()
         .map((snap) =>
             snap.docs.map((doc) => ArtisanModel.fromFirestore(doc)).toList());
