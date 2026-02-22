@@ -30,7 +30,7 @@ class ArtisanProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.bg,
       body: CustomScrollView(
         slivers: [
-          // HEADER ROUGE
+          // HEADER
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
@@ -172,9 +172,75 @@ class ArtisanProfileScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
-                  // Bouton noter
+                  // PORTFOLIO
+                  if (artisan.photos.isNotEmpty) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Réalisations',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: AppColors.black,
+                              )),
+                          const SizedBox(height: 12),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                            itemCount: artisan.photos.length,
+                            itemBuilder: (_, i) {
+                              return GestureDetector(
+                                onTap: () => _voirPhoto(context, i),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    artisan.photos[i],
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (_, child, progress) {
+                                      if (progress == null) return child;
+                                      return Container(
+                                        color: AppColors.gray,
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.red,
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (_, __, ___) => Container(
+                                      color: AppColors.gray,
+                                      child: const Icon(Icons.broken_image,
+                                          color: AppColors.mid),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+
+                  // BOUTON NOTER
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: SizedBox(
@@ -219,7 +285,7 @@ class ArtisanProfileScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // BOUTONS
+                  // BOUTONS CONTACT
                   Row(
                     children: [
                       Expanded(
@@ -244,7 +310,7 @@ class ArtisanProfileScreen extends StatelessWidget {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: _whatsapp,
-                          icon: const Icon(Icons.message,
+                          icon: const Icon(Icons.chat,
                               size: 18, color: Colors.white),
                           label: const Text('WhatsApp'),
                           style: ElevatedButton.styleFrom(
@@ -261,11 +327,24 @@ class ArtisanProfileScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _voirPhoto(BuildContext context, int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _PhotoViewer(
+          photos: artisan.photos,
+          initialIndex: index,
+        ),
       ),
     );
   }
@@ -303,6 +382,60 @@ class ArtisanProfileScreen extends StatelessWidget {
                 color: color ?? AppColors.mid,
               )),
         ],
+      ),
+    );
+  }
+}
+
+// VISIONNEUSE PHOTO PLEIN ÉCRAN
+class _PhotoViewer extends StatefulWidget {
+  final List<String> photos;
+  final int initialIndex;
+
+  const _PhotoViewer({required this.photos, required this.initialIndex});
+
+  @override
+  State<_PhotoViewer> createState() => _PhotoViewerState();
+}
+
+class _PhotoViewerState extends State<_PhotoViewer> {
+  late PageController _controller;
+  late int _current;
+
+  @override
+  void initState() {
+    super.initState();
+    _current = widget.initialIndex;
+    _controller = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('${_current + 1} / ${widget.photos.length}',
+            style: const TextStyle(color: Colors.white)),
+      ),
+      body: PageView.builder(
+        controller: _controller,
+        onPageChanged: (i) => setState(() => _current = i),
+        itemCount: widget.photos.length,
+        itemBuilder: (_, i) => InteractiveViewer(
+          child: Center(
+            child: Image.network(
+              widget.photos[i],
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Icon(
+                Icons.broken_image,
+                color: Colors.white54,
+                size: 60,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

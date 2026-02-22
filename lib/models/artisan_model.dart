@@ -11,11 +11,12 @@ class ArtisanModel {
   final String statut;
   final bool isVerified;
   final String badge;
-  final double notemoyenne; // Ton champ exact
-  final int totalAvis; // Ton champ exact
+  final double notemoyenne;
+  final int totalAvis;
   final int totalMissions;
   final bool isPremium;
   final String telephone;
+  final List<String> photos;
 
   const ArtisanModel({
     required this.uid,
@@ -33,6 +34,7 @@ class ArtisanModel {
     this.totalMissions = 0,
     this.isPremium = false,
     this.telephone = '',
+    this.photos = const [],
   });
 
   factory ArtisanModel.fromFirestore(DocumentSnapshot doc) {
@@ -53,6 +55,7 @@ class ArtisanModel {
       totalMissions: d['totalMissions'] ?? 0,
       isPremium: d['isPremium'] ?? false,
       telephone: d['telephone'] ?? '',
+      photos: List<String>.from(d['photos'] ?? []),
     );
   }
 }
