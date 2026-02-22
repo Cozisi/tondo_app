@@ -30,45 +30,150 @@ class ArtisanProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.bg,
       body: CustomScrollView(
         slivers: [
-          // HEADER
+          // HEADER AVEC BANNIÈRE
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 260,
             pinned: true,
             backgroundColor: AppColors.red,
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                color: AppColors.red,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 40),
-                    Container(
-                      width: 80,
-                      height: 80,
+              background: Stack(
+                children: [
+                  // BANNIÈRE
+                  Positioned.fill(
+                    child: artisan.banniereUrl.isNotEmpty
+                        ? Image.network(
+                            artisan.banniereUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: AppColors.red,
+                            ),
+                          )
+                        : Container(color: AppColors.red),
+                  ),
+
+                  // GRADIENT SOMBRE
+                  Positioned.fill(
+                    child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Center(
-                        child: Text(artisan.metierEmoji,
-                            style: const TextStyle(fontSize: 40)),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.2),
+                            Colors.black.withValues(alpha: 0.7),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(artisan.displayName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                        )),
-                    Text(artisan.metierLabel,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 14,
-                        )),
-                  ],
-                ),
+                  ),
+
+                  // INFOS EN BAS
+                  Positioned(
+                    bottom: 20,
+                    left: 16,
+                    right: 16,
+                    child: Row(
+                      children: [
+                        // PHOTO DE PROFIL + EMOJI
+                        Stack(
+                          children: [
+                            // Photo de profil
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(18),
+                                child: artisan.photoUrl.isNotEmpty
+                                    ? Image.network(
+                                        artisan.photoUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
+                                          child: Center(
+                                            child: Text(artisan.metierEmoji,
+                                                style: const TextStyle(
+                                                    fontSize: 30)),
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.2),
+                                        child: Center(
+                                          child: Text(artisan.metierEmoji,
+                                              style: const TextStyle(
+                                                  fontSize: 30)),
+                                        ),
+                                      ),
+                              ),
+                            ),
+
+                            // EMOJI MÉTIER en badge
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border:
+                                      Border.all(color: Colors.white, width: 1),
+                                ),
+                                child: Center(
+                                  child: Text(artisan.metierEmoji,
+                                      style: const TextStyle(fontSize: 12)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 12),
+
+                        // NOM + MÉTIER
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(artisan.displayName,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                  )),
+                              Text(artisan.metierLabel,
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 13,
+                                  )),
+                              const SizedBox(height: 4),
+                              Row(children: [
+                                const Icon(Icons.star_rounded,
+                                    color: Color(0xFFF59E0B), size: 14),
+                                const SizedBox(width: 3),
+                                Text(
+                                  '${artisan.notemoyenne} · ${artisan.totalAvis} avis',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ]),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -387,7 +492,6 @@ class ArtisanProfileScreen extends StatelessWidget {
   }
 }
 
-// VISIONNEUSE PHOTO PLEIN ÉCRAN
 class _PhotoViewer extends StatefulWidget {
   final List<String> photos;
   final int initialIndex;

@@ -4,6 +4,7 @@ class ArtisanModel {
   final String uid;
   final String displayName;
   final String photoUrl;
+  final String banniereUrl;
   final String metier;
   final String metierLabel;
   final String metierEmoji;
@@ -22,6 +23,7 @@ class ArtisanModel {
     required this.uid,
     required this.displayName,
     required this.photoUrl,
+    required this.banniereUrl,
     required this.metier,
     required this.metierLabel,
     required this.metierEmoji,
@@ -43,6 +45,7 @@ class ArtisanModel {
       uid: doc.id,
       displayName: d['displayName'] ?? '',
       photoUrl: d['photoUrl'] ?? '',
+      banniereUrl: d['banniereUrl'] ?? '',
       metier: d['metier'] ?? '',
       metierLabel: d['metierLabel'] ?? '',
       metierEmoji: d['metierEmoji'] ?? '🔧',
