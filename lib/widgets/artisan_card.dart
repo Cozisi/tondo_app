@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/constants/app_colors.dart';
 import '../models/artisan_model.dart';
 import '../screens/artisan/artisan_profile_screen.dart';
+import '../services/favoris_service.dart';
 
 class ArtisanCard extends StatelessWidget {
   final ArtisanModel artisan;
@@ -108,10 +109,12 @@ class ArtisanCard extends StatelessWidget {
                   ),
                 ),
 
-                // Note
+                // Note + favori
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    FavoriButton(artisanId: artisan.uid),
+                    const SizedBox(height: 4),
                     Row(children: [
                       const Icon(Icons.star_rounded,
                           color: Color(0xFFF59E0B), size: 16),
@@ -178,6 +181,47 @@ class ArtisanCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class FavoriButton extends StatefulWidget {
+  final String artisanId;
+  const FavoriButton({required this.artisanId, super.key});
+
+  @override
+  State<FavoriButton> createState() => _FavoriButtonState();
+}
+
+class _FavoriButtonState extends State<FavoriButton> {
+  final _service = FavorisService();
+  bool _isFavori = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _charger();
+  }
+
+  Future<void> _charger() async {
+    final val = await _service.estFavori(widget.artisanId);
+    if (mounted) setState(() => _isFavori = val);
+  }
+
+  Future<void> _toggle() async {
+    await _service.toggleFavori(widget.artisanId);
+    setState(() => _isFavori = !_isFavori);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _toggle,
+      child: Icon(
+        _isFavori ? Icons.favorite : Icons.favorite_border,
+        color: _isFavori ? AppColors.red : AppColors.mid,
+        size: 22,
       ),
     );
   }

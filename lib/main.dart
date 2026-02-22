@@ -6,6 +6,8 @@ import 'core/constants/app_colors.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/missions/missions_screen.dart';
+import 'screens/favoris/favoris_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,8 +49,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Center(child: Text('Recherche — bientôt')),
-    const Center(child: Text('Missions — bientôt')),
+    const FavorisScreen(),
+    const MissionsScreen(),
     const ProfilScreen(),
   ];
 
@@ -73,9 +75,9 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Accueil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Chercher',
+            icon: Icon(Icons.favorite_border),
+            activeIcon: Icon(Icons.favorite),
+            label: 'Favoris',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_outlined),
