@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "502100720377",
+    "project_id": "tondobf-app",
+    "storage_bucket": "tondobf-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502100720377:android:2f5334fbd5c0d080ca4028",
+        "android_client_info": {
+          "package_name": "com.tondo.tondo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDACkLvcoYFSqKGE-pJ6UtqazAfqbW-jWA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
