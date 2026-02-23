@@ -16,11 +16,32 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _role;
   String? _erreur;
 
+  final _prenomController = TextEditingController();
+  final _nomController = TextEditingController();
+  final _telephoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _prenomController.dispose();
+    _nomController.dispose();
+    _telephoneController.dispose();
+    super.dispose();
+  }
+
   Future<void> _continuer() async {
     if (_role == null) {
       setState(() => _erreur = 'Choisissez votre profil d\'abord');
       return;
     }
+
+    if (_role == 'client') {
+      if (_prenomController.text.trim().isEmpty ||
+          _nomController.text.trim().isEmpty) {
+        setState(() => _erreur = 'Veuillez remplir votre nom et prénom');
+        return;
+      }
+    }
+
     setState(() {
       _enChargement = true;
       _erreur = null;
@@ -33,10 +54,31 @@ class _LoginScreenState extends State<LoginScreen> {
         user = cred.user;
       }
 
-      await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
+      if (user == null) {
+        setState(() {
+          _erreur = 'Erreur de connexion. Réessayez.';
+          _enChargement = false;
+        });
+        return;
+      }
+
+      final data = {
         'role': _role,
         'createdAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      };
+
+      if (_role == 'client') {
+        data['prenom'] = _prenomController.text.trim();
+        data['nom'] = _nomController.text.trim();
+        if (_telephoneController.text.trim().isNotEmpty) {
+          data['telephone'] = _telephoneController.text.trim();
+        }
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set(data, SetOptions(merge: true));
 
       if (mounted)
         Navigator.pushReplacement(
@@ -45,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
     } catch (e) {
       setState(() {
-        _erreur = 'Erreur. Réessayez.';
+        _erreur = 'Erreur : ${e.toString()}';
         _enChargement = false;
       });
     }
@@ -60,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.black),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,6 +123,8 @@ class _LoginScreenState extends State<LoginScreen> {
             const Text('Choisissez votre profil pour continuer',
                 style: TextStyle(fontSize: 14, color: AppColors.mid)),
             const SizedBox(height: 32),
+
+            // CHOIX RÔLE
             Row(
               children: [
                 Expanded(
@@ -104,12 +148,75 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
+
+            // FORMULAIRE CLIENT
+            if (_role == 'client') ...[
+              const SizedBox(height: 28),
+              const Text('Vos informations',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.black,
+                  )),
+              const SizedBox(height: 12),
+              _champSaisie(
+                controller: _prenomController,
+                hint: 'Prénom *',
+                icone: Icons.person_outline,
+              ),
+              const SizedBox(height: 10),
+              _champSaisie(
+                controller: _nomController,
+                hint: 'Nom *',
+                icone: Icons.person_outline,
+              ),
+              const SizedBox(height: 10),
+              _champSaisie(
+                controller: _telephoneController,
+                hint: 'Téléphone (optionnel)',
+                icone: Icons.phone_outlined,
+                clavier: TextInputType.phone,
+              ),
+            ],
+
+            // FORMULAIRE ARTISAN
+            if (_role == 'artisan') ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.redLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border:
+                      Border.all(color: AppColors.red.withValues(alpha: 0.2)),
+                ),
+                child: const Row(
+                  children: [
+                    Text('ℹ️', style: TextStyle(fontSize: 20)),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Votre profil artisan sera créé et vérifié par l\'équipe Tondo avant d\'être visible.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.red,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             if (_erreur != null) ...[
               const SizedBox(height: 16),
               Text(_erreur!,
                   style: const TextStyle(color: AppColors.red, fontSize: 13)),
             ],
-            const Spacer(),
+
+            const SizedBox(height: 32),
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -142,6 +249,33 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 16),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _champSaisie({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icone,
+    TextInputType clavier = TextInputType.text,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.gray,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: clavier,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: AppColors.mid, fontSize: 14),
+          prefixIcon: Icon(icone, color: AppColors.mid, size: 20),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         ),
       ),
     );

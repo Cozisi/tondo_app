@@ -20,12 +20,15 @@ class UserService {
   Future<DocumentSnapshot?> getArtisanProfile() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return null;
+
+    // Cherche par uid
     final snap = await _db
         .collection('artisans')
-        .where('telephone', isEqualTo: user.phoneNumber?.replaceAll('+226', ''))
+        .where('uid', isEqualTo: user.uid)
         .limit(1)
         .get();
-    if (snap.docs.isEmpty) return null;
-    return snap.docs.first;
+
+    if (snap.docs.isNotEmpty) return snap.docs.first;
+    return null;
   }
 }
