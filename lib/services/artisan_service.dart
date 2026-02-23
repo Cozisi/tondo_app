@@ -7,7 +7,6 @@ class ArtisanService {
   Stream<List<ArtisanModel>> getArtisansDisponibles() {
     return _db
         .collection('artisans')
-        .where('statut', isEqualTo: 'disponible')
         .where('isVerified', isEqualTo: true)
         .snapshots()
         .map((snap) =>
@@ -18,7 +17,7 @@ class ArtisanService {
     return _db
         .collection('artisans')
         .where('metier', isEqualTo: metier)
-        .where('statut', isEqualTo: 'disponible')
+        .where('isVerified', isEqualTo: true)
         .snapshots()
         .map((snap) =>
             snap.docs.map((doc) => ArtisanModel.fromFirestore(doc)).toList());

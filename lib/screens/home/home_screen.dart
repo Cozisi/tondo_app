@@ -229,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // LISTE ARTISANS
-            StreamBuilder(
+            StreamBuilder<List<ArtisanModel>>(
               stream: _categorieSelectionnee == null
                   ? _service.getArtisansDisponibles()
                   : _service.getArtisansByMetier(_categorieSelectionnee!),
